@@ -1,30 +1,53 @@
-app-id: org.openandroidinstaller.OpenAndroidInstaller
+id: org.openandroidinstaller.OpenAndroidInstaller
 runtime: org.freedesktop.Platform
 runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
 command: openandroidinstaller
 finish-args:
-  - --share=ipc
-  - --socket=fallback-x11
-  - --socket=wayland
-  - --filesystem=xdg-documents
-  - --device=dri
+- --share=ipc
+- --socket=fallback-x11
+- --socket=wayland
+- --filesystem=xdg-documents
+- --device=all
 modules:
-  # - generated-poetry-sources.json
-  - name: OpenAndroidInstaller
-    buildsystem: simple
-    build-commands:
-      - install -d dist/ app/
-    #- cp dist/openandroidinstaller app/openandroidinstaller
-      - install -D dist/openandroidinstaller app/bin/openandroidinstaller
-      - ls
-      - ls app/bin/
-      - ls dist/
-    sources:
-      - type: dir
-        path: dist/
-        dest: dist/
-    #  - pip3 install --no-deps --use-pep517 --prefix=${FLATPAK_DEST} .
-    # sources:
-    #   - type: archive
-    #     path: dist/openandroidinstaller-0.4.2b0.tar.gz
+- flatpak/python3-poetry.yaml
+- flatpak/generated-poetry-sources.json
+- flatpak/python3-wheel.json
+
+- name: fastboot
+  buildsystem: simple
+  build-commands:
+  - mv * /app/bin
+  sources:
+  - type: archive
+    url: https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+    sha256: 09aa9346b7c61adbf79f15378cbd61666899a20678b8cb9872f078c38fe3833f
+
+- name: heimdall
+  buildsystem: simple
+  build-commands:
+  - mv * /app/bin
+  - ls /app/bin
+  sources:
+  - type: archive
+    url: https://people.ubuntu.com/~neothethird/heimdall-linux.zip
+    sha256: b8abc6e274dedf98263ede30cbceef69f21134298905f319474c7814008eb78d
+
+# - name: libusb
+#   buildsystem: simple
+#   build-commands:
+#   - mv * /app/bin
+#   sources:
+#   - type: archive
+#     url: https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.24.7z
+#     sha256: 620cec4dbe4868202949294157da5adb75c9fbb4f04266146fc833eef85f90fb
+
+- name: OpenAndroidInstaller
+  buildsystem: simple
+  build-commands:
+  - poetry install
+  # - install -Dm755 openandroidinstaller -t /app/bin
+  - ls -la /app/bin
+  sources:
+  - type: dir
+    path: .
